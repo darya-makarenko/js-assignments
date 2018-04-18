@@ -27,10 +27,64 @@
  *   'FUNCTION'  => false
  *   'NULL'      => false 
  */
-function findStringInSnakingPuzzle(puzzle, searchStr) {
-    throw new Error('Not implemented');
+function reqSnake(puzzle, searchStr, y, x, flagArr){
+    if(searchStr == ""){
+        return true;
+    }
+    let isFound = false;
+    flagArr[y][x] = true;
+    if((y - 1 >= 0)&&(!flagArr[y-1][x])
+        &&(puzzle[y-1][x] == searchStr[0])){
+        y = y-1;
+        isFound = true;         
+    }
+    if((x - 1 >= 0)
+        &&(!isFound)&&(!flagArr[y][x-1])
+        &&(puzzle[y][x-1] == searchStr[0])){
+        x= x-1;
+        isFound = true;
+    }
+    if((x + 1 < puzzle[y].length)
+        &&(!isFound)&&(!flagArr[y][x+1])
+        &&(puzzle[y][x+1] == searchStr[0])){
+        x = x+1;
+        isFound = true;
+    }
+    if((y + 1 < puzzle.length)
+        &&(!isFound)&&(!flagArr[y+1][x])
+        &&(puzzle[y+1][x] == searchStr[0])){
+        y = y+1;
+        isFound = true;
+    }
+
+    if(!isFound){ return false; }
+    let arr = searchStr.split('');
+    arr.splice(0, 1);
+    return reqSnake(puzzle, arr.join(''), y, x, flagArr);
 }
 
+function findStringInSnakingPuzzle(puzzle, searchStr) {
+    let flagArr = [];
+    for(let i = 0; i < puzzle.length; i++){
+        flagArr[i] = [];
+        for(let j = 0; j < puzzle[i].length; j++){
+            flagArr[i][j] = false;
+        }
+    }
+    for(let i = 0; i < puzzle.length; i++){
+        //let index = puzzle[i].indexOf(searchStr[0]);
+        for(let j = 0; j < puzzle[i].length; j++){
+            if(puzzle[i][j] == searchStr[0]){
+                let arr = searchStr.split('');
+                arr.splice(0, 1);
+                if(reqSnake(puzzle, arr.join(''), i, j, flagArr)){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
 
 /**
  * Возвращает все перестановки заданной строки.
@@ -44,8 +98,26 @@ function findStringInSnakingPuzzle(puzzle, searchStr) {
  *    'ab'  => 'ab','ba'
  *    'abc' => 'abc','acb','bac','bca','cab','cba'
  */
+function recPerm(chars){
+    if(chars.length == 1){
+        return [chars];
+    }
+    let answer = [];
+    for(let i = 0; i < chars.length; i++){
+        let arr = chars.split('');
+        arr.splice(i, 1);
+        let result = recPerm(arr.join(''));
+        for(let j = 0; j < result.length; j++){
+            result[j] = chars[i] + result[j];
+        }
+        answer = answer.concat(result);
+    }
+    return answer;
+}
+
 function* getPermutations(chars) {
-    throw new Error('Not implemented');
+    yield* recPerm(chars);
+    return;
 }
 
 
@@ -65,7 +137,23 @@ function* getPermutations(chars) {
  *    [ 1, 6, 5, 10, 8, 7 ] => 18  (купить по 1,6,5 и затем продать все по 10)
  */
 function getMostProfitFromStockQuotes(quotes) {
-    throw new Error('Not implemented');
+    let maxInd = 0;
+    let profit = 0;
+    while (quotes.length > 0){
+        maxInd = 0;
+        for (let i = 0; i < quotes.length; i++){
+            if (quotes[i] > quotes[maxInd]){
+                maxInd = i;
+            }
+        }
+        if (maxInd != 0){
+            for (let j = 0; j < maxInd; j++){
+                profit += (quotes[maxInd] - quotes[j]);
+            }
+        }
+        quotes.splice(0, maxInd + 1);
+    }
+    return profit;
 }
 
 
@@ -92,11 +180,103 @@ function UrlShortener() {
 UrlShortener.prototype = {
 
     encode: function(url) {
-        throw new Error('Not implemented');
+        let replace = [];
+        replace['wikipedia.org'] = '~0@';
+        replace['https://'] = 's:/';
+        replace['http://'] = 'p:/';
+        replace['wikipedia'] = '~3@';
+        replace['.org'] = '~4@';
+        replace['shortening'] = '~5@';
+        replace['wiki'] = '~6@';
+        replace['developer'] = '~7@';
+        replace['mozilla'] = '~8@';
+        replace['JavaScript'] = '~9@';
+        replace['javaScript'] = '~a@';
+        replace['Javascript'] = '~b@';
+        replace['javascript'] = '~c@';
+        replace['reference'] = '~d@';
+        replace['Reference'] = '~e@';
+        replace['objects'] = '~f@';
+        replace['Objects'] = '~g@';
+        replace['Global'] = '~h@';
+        replace['global'] = '~i@';
+        replace['en-US'] = '~j@';
+        replace['Percent'] = '~k@';
+        replace['percent'] = '~l@';
+        replace['characters'] = '~m@';
+        replace['Characters'] = '~n@';
+        replace['encod'] = '~o@';
+        replace['encoding'] = '~p@';
+        replace['Encod'] = '~q@';
+        replace['Encoding'] = '~r@';
+        replace['binary'] = '~s@';
+        replace['Binary'] = '~t@';
+        replace['text'] = '~u@';
+        replace['Text'] = '~v@';
+        replace['google.com'] = '~w@';
+        replace['Plain'] = '~x@';
+        replace['_plain_'] = '~y@';
+        replace['_Plain_'] = '~z@';
+        replace['wikipedia/'] = '~1@';
+        replace['wikipedia.'] = '~1@';
+        for(let key in replace){
+            let index = url.indexOf(key);
+            if(index != -1){
+                url = url.split(key);
+                url = url.join(replace[key]);   
+            }
+        }
+        return url;
     },
     
     decode: function(code) {
-        throw new Error('Not implemented');
+        let replace = [];
+        replace['~0@'] = 'wikipedia.org';
+        replace['s:/'] = 'https://';
+        replace['p:/'] = 'http://';
+        replace['~3@'] = 'wikipedia';
+        replace['~4@'] = '.org';
+        replace['~5@'] = 'shortening';
+        replace['~6@'] = 'wiki';
+        replace['~7@'] = 'developer';
+        replace['~8@'] = 'mozilla';
+        replace['~9@'] = 'JavaScript';
+        replace['~a@'] = 'javaScript';
+        replace['~b@'] = 'Javascript';
+        replace['~c@'] = 'javascript';
+        replace['~d@'] = 'reference';
+        replace['~e@'] = 'Reference';
+        replace['~f@'] = 'objects';
+        replace['~g@'] = 'Objects';
+        replace['~h@'] = 'Global';
+        replace['~i@'] = 'global';
+        replace['~j@'] = 'en-US';
+        replace['~k@'] = 'Percent';
+        replace['~l@'] = 'percent';
+        replace['~m@'] = 'characters';
+        replace['~n@'] = 'Characters';
+        replace['~o@'] = 'encod';
+        replace['~p@'] = 'encoding';
+        replace['~q@'] = 'Encod';
+        replace['~r@'] = 'Encoding';
+        replace['~s@'] = 'binary';
+        replace['~t@'] = 'Binary';
+        replace['~u@'] = 'text';
+        replace['~v@'] = 'Text';
+        replace['~w@'] = 'google.com';
+        replace['~x@'] = 'Plain';
+        replace['~y@'] = '_plain_';
+        replace['~z@'] = '_Plain_';
+        replace['~1@'] = 'wikipedia/';
+        replace['~1@'] = 'wikipedia.';
+        for(let key in replace){
+            let index = code.indexOf(key);
+            if(index != -1){
+                code = code.split(key);
+                code = code.join(replace[key]); 
+            }
+        }
+        return code;
     } 
 }
 

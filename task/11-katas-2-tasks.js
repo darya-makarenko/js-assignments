@@ -34,7 +34,35 @@
  *
  */
 function parseBankAccount(bankAccount) {
-    throw new Error('Not implemented');
+     let numbers = []
+    numbers[0] = ' _ | ||_|';
+    numbers[1] = '     |  |';
+    numbers[2] = ' _  _||_ ';
+    numbers[3] = ' _  _| _|';
+    numbers[4] = '   |_|  |';
+    numbers[5] = ' _ |_  _|';
+    numbers[6] = ' _ |_ |_|';
+    numbers[7] = ' _   |  |';
+    numbers[8] = ' _ |_||_|';
+    numbers[9] = ' _ |_| _|';
+    let result = "";
+    for (let i = 0; i < 9; i++){
+        let cur_number = "";
+        let acc = bankAccount.split('\n');
+        for(let j = 0; j < 3; j++){
+            let arr = acc[j].split('');
+            let temp = arr.splice(i*3, 3);
+            temp = temp.join('');
+            cur_number += temp;
+        }
+        for(let j = 0; j < numbers.length; j++){
+            if(numbers[j] == cur_number){
+                result += j;
+                break;
+            }
+        }
+    }
+    return result;
 }
 
 
@@ -63,7 +91,23 @@ function parseBankAccount(bankAccount) {
  *                                                                                                'characters.'
  */
 function* wrapText(text, columns) {
-    throw new Error('Not implemented');
+    let arr_text = text.split(' ');
+    let result = [];
+    let index = 0;
+    let line = 0;
+    while(index < arr_text.length){
+        result[line] = arr_text[index];
+        let sum = arr_text[index].length + 1;
+        index++;
+        while((index < arr_text.length) && (sum + arr_text[index].length <= columns)){
+            result[line] += ' ' + arr_text[index];
+            sum += arr_text[index].length + 1;
+            index++;
+        }
+        line++;
+    }
+    yield* result;
+    return;
 }
 
 
@@ -100,8 +144,202 @@ const PokerRank = {
     HighCard: 0
 }
 
+function sortArr(arr_numbers){
+    let numbers = ["2", "3", "4", "5", "6", 
+                       "7", "8", "9", "10", "J", "Q", "K", "A"];
+    for(let i = 0; i < arr_numbers.length; i++){
+        if(arr_numbers[i] == 2){
+        numbers = ["A", "2", "3", "4", "5", "6", 
+                       "7", "8", "9", "10", "J", "Q", "K"];      
+        break;
+        }  
+    }    
+    return arr_numbers.sort(function (val1, val2){
+                return findIndexInArr(val1, numbers) - findIndexInArr(val2, numbers);
+            });
+}
+
+function findIndexInArr(val, array){
+    for(let i = 0; i < array.length; i++){
+        if(array[i] == val){
+            return i;
+        }
+    }
+}
+
+function isBigger(val1, val2){
+    let numbers = ["2", "3", "4", "5", "6", 
+                    "7", "8", "9", "10", "J", "Q", "K", "A"];
+    return findIndexInArr(val1, numbers) - findIndexInArr(val2, numbers);
+}
+
+function isBiggerByOne(val1, val2){
+    let numbers = ["A", "2", "3", "4", "5", "6", 
+                    "7", "8", "9", "10", "J", "Q", "K", "A"];
+    /*if ((val1 == 2) || (val2 == 2)){
+       numbers = ["A", "2", "3", "4", "5", "6", 
+                    "7", "8", "9", "10", "J", "Q", "K"]; 
+    }*/
+    if(numbers[findIndexInArr(val1, numbers) + 1] == val2){
+        return true;
+    }
+    return false;
+}
+
+
+function isStraightFlush(arr_numbers, arr_shapes){
+    for(let i = 0; i < arr_shapes.length-1; i++){
+        if(arr_shapes[i] != arr_shapes[i+1]){
+            return false;
+        }
+    }
+    arr_numbers = sortArr(arr_numbers);
+    for(let i = 0; i < arr_numbers.length-1; i++){
+        if(!isBiggerByOne(arr_numbers[i], arr_numbers[i+1])){
+            return false;
+        }
+    }
+    return true;
+}
+
+function isFourOfKind(arr_numbers){
+    let count_equal = 0;
+    for(let i = 0; i < arr_numbers.length; i++){
+        if ((i != 1) && (arr_numbers[i] == arr_numbers[1])){
+            count_equal++;
+        }
+    }
+    if(count_equal == 3) { return true; }
+}
+
+function isFullHouse(arr_numbers){
+    arr_numbers = sortArr(arr_numbers);
+    let count_equal1 = 0;
+    let count_equal2 = 0;
+    for(let i = 0; i < arr_numbers.length; i++){
+        if((i != 1) && (arr_numbers[i] == arr_numbers[1])){
+            count_equal1++;
+        }
+    }
+
+    for(let i = 0; i < arr_numbers.length; i++){
+        if((i != 3) && (arr_numbers[i] == arr_numbers[3])){
+            count_equal2++;
+        }
+    }
+    if (((count_equal2 == 2) && (count_equal1 == 1)) || ((count_equal1 == 2) && (count_equal2 == 1))){
+        return true;
+    }
+    return false;
+}
+
+function isFlush(arr_shapes){
+    for(let i = 1; i < arr_shapes.length; i++){
+        if (arr_shapes[0] != arr_shapes[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
+
+
+function isStraight(arr_numbers){
+    arr_numbers = sortArr(arr_numbers);
+    for(let i = 0; i < arr_numbers.length-1; i++){
+        if (!isBiggerByOne(arr_numbers[i], arr_numbers[i+1])){
+            return false;
+        }
+    }
+    return true;
+}
+
+function isThreeOfKind(arr_numbers){
+    arr_numbers = sortArr(arr_numbers);
+    let count_equal = 0;
+    for(let i = 0; i < arr_numbers.length; i++){
+        if((i != 2) && (arr_numbers[2] == arr_numbers[i])){
+            count_equal++;
+        }
+    }
+    if(count_equal == 2){
+        return true;
+    }
+    return false;
+}
+
+function isTwoPairs(arr_numbers){
+    let count_equal = false;
+    let low = 0;
+    while((low < arr_numbers.length) && (!count_equal)){
+        let i = low+1;
+        while(i < arr_numbers.length){
+            if(arr_numbers[low] == arr_numbers[i]){
+                arr_numbers[low] = null;
+                arr_numbers[i++] = null;
+                count_equal = true;
+                break;
+            }
+            i++;
+        }
+        low++;
+    } 
+    low = 0;
+    while((count_equal)&&(low < arr_numbers.length)){
+        let i = low+1;
+        while(i < arr_numbers.length){
+            if((arr_numbers[low] == arr_numbers[i]) 
+                && (arr_numbers[low] != null) 
+                && (arr_numbers[i] != null)){
+                return true;
+            }
+            i++;
+        }
+        low++;
+    } 
+    return false;
+}
+
+function isOnePair(arr_numbers){
+    let low = 0;
+    while(low < arr_numbers.length){
+        let i = low+1;
+        while(i < arr_numbers.length){
+            if(arr_numbers[low] == arr_numbers[i++]){
+                return true;
+            }
+        }
+        low++;
+    }  
+    return false;
+}
+
+
 function getPokerHandRank(hand) {
-    throw new Error('Not implemented');
+
+    let pokerRankStr = [];
+    let arr_numbers = [];
+    let arr_shapes = [];
+    for(let i = 0; i < hand.length; i++){
+        let temp = hand[i].split('');
+        arr_numbers[i] = temp[0];
+        if(temp[1] == '0') {
+            arr_numbers[i] += temp[1];
+            arr_shapes[i] = temp[2];
+        } else{
+            arr_shapes[i] = temp[1];
+        }
+    }
+
+    if (isStraightFlush(arr_numbers, arr_shapes)) { return  PokerRank.StraightFlush; }
+    if (isFourOfKind(arr_numbers)) { return  PokerRank.FourOfKind; }
+    if (isFullHouse(arr_numbers)) { return  PokerRank.FullHouse; }
+    if (isFlush(arr_shapes)) { return  PokerRank.Flush; }
+    if (isStraight(arr_numbers)) { return  PokerRank.Straight; }
+    if (isThreeOfKind(arr_numbers)) { return  PokerRank.ThreeOfKind; }
+    if (isTwoPairs(arr_numbers)) { return  PokerRank.TwoPairs; }
+    if (isOnePair(arr_numbers)) { return  PokerRank.OnePair; }
+    return PokerRank.HighCard;
 }
 
 
