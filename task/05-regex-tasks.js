@@ -54,7 +54,7 @@ function getRegexForGuid() {
  *
  */
 function getRegexForPitSpot() {
-   let result = new RegExp('\w*p[aio ]t\w*', );
+   let result = new RegExp('\w*p[aio ]t\w*');
    return result;
 }
 
