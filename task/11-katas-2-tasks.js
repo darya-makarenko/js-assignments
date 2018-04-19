@@ -374,7 +374,82 @@ function getPokerHandRank(hand) {
  *    '+-------------+\n'
  */
 function* getFigureRectangles(figure) {
-   throw new Error('Not implemented');
+   figure = figure.split('\n'); 
+    
+    function myLoop(row, col, dRow, dCol, s){
+        let i;
+        if (dRow){
+            for (i = row + dRow; i < figure.length && i >= 0; i += dRow){
+                if ((figure[i][col] === '+') && (figure[i][col - dRow] === '+' || figure[i][col - dRow] === s)){
+                    return i;
+                }
+                else if (figure[i][col] === ' '){
+                    return false;
+                }
+            }
+        }
+        if (dCol && figure[row + dCol]){
+            for (i = col + dCol; i < figure[row].length && i >= 0; i += dCol){
+                if ((figure[row][i] === '+') && (figure[row + dCol][i] === '+' || figure[row + dCol][i] === s)){
+                    return i;
+                }
+                else if (figure[row][i] === ' '){
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+    
+    function rec(row, col) {
+        let _col;
+        let _row;
+        let resultCol;
+        let resultRow;
+        
+        _col = myLoop(row, col, 0, 1, '|');
+        if (_col === false) {return false;}
+        _row = myLoop(row, _col, 1, 0, '-');
+        if (_row === false) {return false;}
+        resultCol = _col;
+        resultRow = _row;
+        
+        _col = myLoop(_row, _col, 0, -1, '|');
+        if (_col === false) {return false;}
+        _row = myLoop(_row, _col, -1, 0, '-');
+        if (_row === false) {return false;}
+        
+        if (_row === row && _col === col) {
+            return {
+                width: resultCol - col + 1,
+                height: resultRow - row + 1
+            };
+        } else{
+            return false;
+        }
+    }
+    
+    function getFigure(obj) {
+        var line = '+' + '-'.repeat(obj.width - 2) + '+\n',
+            result  = line;
+        result += ('|' + ' '.repeat(obj.width - 2) + '|\n').repeat(obj.height - 2);
+        return result + line;
+    }
+
+    for (let i = 0; i < figure.length; i++){
+        for (let j = 0; j < figure[i].length; j++){
+            if ((figure[i][j] === '+') &&
+                (figure[i][j + 1] === '-' || figure[i][j + 1] === '+') &&
+                (figure[i + 1]) && 
+                (figure[i + 1][j] === '|' || figure[i + 1][j] === '+')
+            ){
+                let obj = rec(i, j);
+                if (obj){
+                    yield getFigure(obj);
+                }
+            }
+        }
+    }
 }
 
 
